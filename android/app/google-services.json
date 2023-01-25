@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "403992110101",
+    "project_id": "login-register-c7c64",
+    "storage_bucket": "login-register-c7c64.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:403992110101:android:c1d31cdccfa7a707bd9a1c",
+        "android_client_info": {
+          "package_name": "com.example.interactive_forms_with_rive"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "403992110101-69ml8106vvrfdd4url9qe8qe5pr2b46u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlIP8x_n7dBMNnjjpOyFNL854D9inpSVI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "403992110101-69ml8106vvrfdd4url9qe8qe5pr2b46u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
