@@ -240,20 +240,38 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         final password = passwordController.text;
                         final confirmpassword = confirmpasswordController.text;
 
-                        showLoadingDialog(context);
-                        await Future.delayed(
-                          const Duration(milliseconds: 2000),
-                        );
-                        if (mounted) Navigator.pop(context);
-
-                        if (password != confirmpassword) {
+                        if(email == "" ){
+                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                         content: Text(" email required "),
+                         ));
+                         trigFail?.change(true);
+                         }
+                         else if( password == ""){
+                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                         content: Text(" password required "),
+                         ));
+                         trigFail?.change(true);
+                         }
+                         else if (password != confirmpassword) {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text("Password do not match with Confirm Password "),
+                                ));
+                                trigFail?.change(true);
+                              }
+                         else if (validatePassword(password) != null){
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text("Password do not match with Confirm Password "),
+                            content: Text(validatePassword(password)),
                           ));
                           trigFail?.change(true);
                         }
 
+
                         else {
+                          showLoadingDialog(context);
+                          await Future.delayed(
+                            const Duration(milliseconds: 2000),
+                          );
+                          if (mounted) Navigator.pop(context);
                           try {
                             final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
                               email: email,
@@ -278,7 +296,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 content: Text(" Weak Password "),
                               ));
                               trigFail?.change(true);
-                            } else if (e.code == 'email-already-in-use') {
+                            }
+                            else if(!ChechValidEmail(email)){
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text("Invalid gmail form"),
+                              ));
+                              trigFail?.change(true);
+                            }
+                            else if (e.code == 'email-already-in-use') {
                               print('The account already exists for that email.');
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text(" Email Already Exists "),
@@ -310,4 +335,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       ),
     );
   }
+}
+ChechValidEmail( String email) {
+  String pattern = r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$";
+  RegExp regExp = new RegExp(pattern);
+
+  return regExp.hasMatch(email);
+}
+validatePassword(String value) {
+  if (value.length < 8) {
+    return 'Password must be at least 8 characters';
+  }
+  if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$').hasMatch(value)) {
+    return 'Password must contain at least one letter, one number, and one special character';
+  }
+  if (RegExp(r'(.)\1{2,}').hasMatch(value)) {
+    return 'Password should not contain 3 or more repeating characters';
+  }
+  return null;
 }

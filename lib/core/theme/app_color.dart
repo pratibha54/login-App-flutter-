@@ -13,6 +13,7 @@ class AppColor {
   static Color greenit = const Color(0xFF164652);
   static Color colourit = const Color(0xFF11253d);
   static Color blockit = const Color(0xffffd4d4);
+  static Color googleit = const Color(0xff273b7a);
   static MaterialColor primarySwatch = const MaterialColor(
     0xFF1C3E66,
     {

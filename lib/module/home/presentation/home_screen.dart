@@ -4,6 +4,7 @@ import 'package:interactive_forms_with_rive/core/theme/app_color.dart';
 import 'package:interactive_forms_with_rive/module/home/presentation/register_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rive/rive.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   FocusNode passwordFocusNode = FocusNode();
   TextEditingController passwordController = TextEditingController();
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   /// rive controller and input
   StateMachineController? controller;
@@ -198,17 +201,34 @@ class _HomeScreenState extends State<HomeScreen> {
                         final email = emailController.text;
                         final password = passwordController.text;
 
+                        if(email == "" ){
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(" email required "),
+                          ));
+                          trigFail?.change(true);
+                        }
+                        else if(!ChechValidEmail(email)){
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Invalid gmail form"),
+                          ));
+                          trigFail?.change(true);
+                        }
+                        else if( password == ""){
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(" password required "),
+                          ));
+                          trigFail?.change(true);
+                        }
+                        else{
+
+
                         showLoadingDialog(context);
                         await Future.delayed(
                           const Duration(milliseconds: 2000),
                         );
                         if (mounted) Navigator.pop(context);
 
-                        // if (email == validEmail && password == validPassword) {
-                        //   trigSuccess?.change(true);
-                        // } else {
-                        //   trigFail?.change(true);
-                        // }
+
                         try {
                           final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
                               email: email,
@@ -241,6 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             trigFail?.change(true);
                           }
                         }
+                        }
 
                       },
                       style: ElevatedButton.styleFrom(
@@ -251,12 +272,124 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: const Text("Login"),
                     ),
                   ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
+
+                  const SizedBox(height: 15,),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(25 , 8, 25, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: Colors.black,
+                            thickness: 0.5,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('OR',
+                          style : TextStyle(
+                            fontWeight: FontWeight.w500,
+                          )),
+
+                        ),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.black,
+                            thickness: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+
+                      ) ,
+                      primary: AppColor.googleit,
+                      onPrimary: Colors.white,
+                    ),
+                    onPressed: () async{
+                      emailFocusNode.unfocus();
+                      passwordFocusNode.unfocus();
+
+                      await signInWithGoogle();
+                      FirebaseAuth.instance
+                          .authStateChanges().listen((event) {
+                            if ( event == null ){
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(" Login failed "),
+                              ));
+                              trigFail?.change(true);
+                            }
+                            else{
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(" Welcome, " + event.displayName.toString()),
+                              ));
+                              trigSuccess?.change(true);
+                            }
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Image(
+                            image: AssetImage("assets/google.png"),
+                            height: 25,
+                            width: 25,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 24, right: 8 , ),
+                            child: Text(
+                              'Sign in with Google',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+    ],
+    ),
+    ),
+        ],
+    ),
+    ),
     );
   }
+}
+signInWithGoogle() async {
+  // Trigger the authentication flow
+  final GoogleSignInAccount? googleUser = await GoogleSignIn(
+      scopes: <String>["email"]).signIn();
+
+  // Obtain the auth details from the request
+  final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+
+  // Create a new credential
+  final credential = GoogleAuthProvider.credential(
+    accessToken: googleAuth.accessToken,
+    idToken: googleAuth.idToken,
+  );
+
+  // Once signed in, return the UserCredential
+  return await FirebaseAuth.instance.signInWithCredential(credential);
+}
+
+ChechValidEmail( String email) {
+  String pattern = r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$";
+  RegExp regExp = new RegExp(pattern);
+
+  return regExp.hasMatch(email);
 }

@@ -1,7 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.interactive_forms_with_rive">
+
+    <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="interactive_forms_with_rive"
+        android:label="LoginMe"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

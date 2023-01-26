@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:interactive_forms_with_rive/main_module.dart';
+import 'package:interactive_forms_with_rive/module/home/presentation/home_screen.dart';
+import 'package:interactive_forms_with_rive/module/home/presentation/register_page.dart';
 import 'core/route/app_route.dart';
 import 'core/route/app_route_name.dart';
 import 'core/theme/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async{
   // MainModule.init();
@@ -29,4 +32,17 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: AppRoute.generate,
     );
   }
+}
+
+
+handleAuthState() {
+  return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (BuildContext context, snapshot) {
+        if (snapshot.hasData) {
+          return HomeScreen();
+        } else {
+          return const RegistrationScreen();
+        }
+      });
 }
